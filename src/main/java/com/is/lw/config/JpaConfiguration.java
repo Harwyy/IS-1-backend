@@ -1,4 +1,4 @@
-package com.is.lw;
+package com.is.lw.config;
 
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.springframework.beans.factory.ObjectProvider;

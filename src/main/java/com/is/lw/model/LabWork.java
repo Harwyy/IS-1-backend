@@ -47,9 +47,9 @@ public class LabWork {
     @ValidEnum(enumClass = Difficulty.class, message = "Invalid difficulty value.")
     private String difficulty;
 
-    @ManyToMany()
+    @ManyToOne()
     @JoinColumn(name = "discipline_id", referencedColumnName = "discipline_id")
-    private Set<Discipline> discipline;
+    private Discipline discipline;
 
     @Column(name = "minimal_point")
     @Min(value = 1)
