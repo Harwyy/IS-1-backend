@@ -5,6 +5,7 @@ import com.is.lw.auth.controller.AuthenticationResponse;
 import com.is.lw.auth.controller.RegisterRequest;
 import com.is.lw.auth.model.User;
 import com.is.lw.auth.model.enums.Role;
+import com.is.lw.auth.model.enums.Status;
 import com.is.lw.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,30 +22,73 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request) {
-
+    public AuthenticationResponse registerUser(RegisterRequest request) {
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
+                .isConfirmed(true)
+                .isEnabled(true)
                 .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
+                .status(Status.SUCCESS)
                 .token(jwtToken)
                 .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse authenticateUser(AuthenticationRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
         );
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
+                .status(Status.SUCCESS)
                 .token(jwtToken)
+                .build();
+    }
+
+    public AuthenticationResponse registerAdmin(RegisterRequest request) {
+        var user = User.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.ADMIN)
+                .isConfirmed(false)
+                .isEnabled(false)
+                .build();
+        userRepository.save(user);
+        return AuthenticationResponse.builder()
+                .status(Status.SUCCESS)
+                .build();
+    }
+
+    public AuthenticationResponse authenticateAdmin(AuthenticationRequest request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        if (user.isConfirmed()) {
+            var jwtToken = jwtService.generateToken(user);
+            return AuthenticationResponse.builder()
+                    .status(Status.SUCCESS)
+                    .token(jwtToken)
+                    .build();
+        }
+        return AuthenticationResponse.builder()
+                .status(Status.FAIL)
+                .message("Your credentials have not been processed yet.")
                 .build();
     }
 }

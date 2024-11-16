@@ -15,6 +15,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Cacheable(false)
 public class Discipline {
 
     @Id

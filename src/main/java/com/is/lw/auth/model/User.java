@@ -20,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "_user")
+@Cacheable(false)
 public class User implements UserDetails {
 
     @Id
@@ -32,8 +33,10 @@ public class User implements UserDetails {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(unique = true, nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)

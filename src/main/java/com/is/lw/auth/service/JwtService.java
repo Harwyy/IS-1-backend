@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +33,10 @@ public class JwtService {
             Map<String, Object> claims,
             UserDetails userDetails
     ) {
+        String role = userDetails.getAuthorities().stream().findFirst().map(GrantedAuthority::getAuthority).orElse("USER");
+
+        claims.put("role", role);
+
         return Jwts
                 .builder()
                 .setClaims(claims)

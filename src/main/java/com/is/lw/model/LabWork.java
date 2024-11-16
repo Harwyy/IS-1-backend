@@ -20,6 +20,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Cacheable(false)
 public class LabWork {
 
     @Id

@@ -7,13 +7,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/demo")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class DemoController {
 
-    @GetMapping
-    public ResponseEntity<String> demo() {
-        return ResponseEntity.ok("Hello World");
+    @GetMapping("/admin/hello")
+    public ResponseEntity<String> demoAdmin() {
+        return ResponseEntity.ok("Hello admin!");
+    }
+
+    @GetMapping("/user/hello")
+    public ResponseEntity<String> demoUser() {
+        return ResponseEntity.ok("Hello user!");
     }
 
 }

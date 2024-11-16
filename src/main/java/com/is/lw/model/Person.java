@@ -18,6 +18,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Cacheable(false)
 public class Person {
 
     @Id
