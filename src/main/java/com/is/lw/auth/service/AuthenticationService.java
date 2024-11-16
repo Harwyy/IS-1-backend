@@ -1,11 +1,11 @@
 package com.is.lw.auth.service;
 
-import com.is.lw.auth.controller.AuthenticationRequest;
-import com.is.lw.auth.controller.AuthenticationResponse;
-import com.is.lw.auth.controller.RegisterRequest;
+import com.is.lw.auth.controller.request.AuthenticationRequest;
+import com.is.lw.auth.controller.response.AuthenticationResponse;
+import com.is.lw.auth.controller.request.RegisterRequest;
 import com.is.lw.auth.model.User;
 import com.is.lw.auth.model.enums.Role;
-import com.is.lw.auth.model.enums.Status;
+import com.is.lw.model.enums.Status;
 import com.is.lw.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

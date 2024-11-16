@@ -1,4 +1,4 @@
-package com.is.lw.auth.controller;
+package com.is.lw.auth.controller.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApproveAdminRequest {
+public class RegisterRequest {
+
+    private String firstName;
+
+    private String lastName;
 
     private String email;
+
+    private String password;
 
 }

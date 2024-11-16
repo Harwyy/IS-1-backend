@@ -1,0 +1,2 @@
+insert into _user("email", "password", "first_name", "last_name", "is_confirmed", "is_enabled", "role")
+values ('ADMIN@mail.ru', '$2a$10$ZJpQ/vibcVsyBdDNOpT71eF592o3Moy0CtHWcoLG55u.LIF6M5RaK', 'ADMIN', 'ADMIN', true, true, 'ADMIN');

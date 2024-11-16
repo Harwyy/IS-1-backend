@@ -1,10 +1,13 @@
-package com.is.lw.auth.config;
+package com.is.lw.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Component
 @RequiredArgsConstructor
@@ -12,12 +15,13 @@ public class DataInitializer {
 
     private final JdbcTemplate jdbcTemplate;
 
+    public static String loadSqlFromFile(String filePath) throws IOException {
+        return Files.readString(Path.of(filePath));
+    }
+
     @EventListener(ApplicationReadyEvent.class)
-    public void initializeData() {
-        String sql = """
-            insert into _user("email", "password", "first_name", "last_name", "is_confirmed", "is_enabled", "role")
-            values ('ADMIN@mail.ru', '$2a$10$ZJpQ/vibcVsyBdDNOpT71eF592o3Moy0CtHWcoLG55u.LIF6M5RaK', 'ADMIN', 'ADMIN', true, true, 'ADMIN');
-        """;
+    public void initializeData() throws IOException {
+        String sql = loadSqlFromFile("src/main/resources/sql/insert_admin.sql");
         jdbcTemplate.execute(sql);
     }
 }

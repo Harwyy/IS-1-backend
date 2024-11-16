@@ -1,6 +1,5 @@
-package com.is.lw.auth.controller;
+package com.is.lw.auth.controller.request;
 
-import com.is.lw.auth.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,9 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApproveAdminResponse {
+public class ApproveAdminRequest {
 
-    private Status status;
-    private String message;
+    private String email;
 
 }

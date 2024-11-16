@@ -1,5 +1,8 @@
 package com.is.lw.auth.controller;
 
+import com.is.lw.auth.controller.request.AuthenticationRequest;
+import com.is.lw.auth.controller.request.RegisterRequest;
+import com.is.lw.auth.controller.response.AuthenticationResponse;
 import com.is.lw.auth.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

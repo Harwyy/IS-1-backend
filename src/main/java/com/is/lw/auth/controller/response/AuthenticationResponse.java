@@ -1,6 +1,6 @@
-package com.is.lw.auth.controller;
+package com.is.lw.auth.controller.response;
 
-import com.is.lw.auth.model.enums.Status;
+import com.is.lw.model.enums.Status;
 import lombok.*;
 
 @Data

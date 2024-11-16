@@ -1,4 +1,4 @@
-package com.is.lw.auth.model.enums;
+package com.is.lw.model.enums;
 
 public enum Status {
 
