@@ -1,6 +1,6 @@
-package com.is.lw.repository;
+package com.is.lw.auth.repository;
 
-import com.is.lw.model.User;
+import com.is.lw.auth.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

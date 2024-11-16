@@ -1,4 +1,4 @@
-package com.is.lw.model.enums;
+package com.is.lw.auth.model.enums;
 
 public enum Role {
 

@@ -1,6 +1,6 @@
-package com.is.lw.controller;
+package com.is.lw.auth.controller;
 
-import com.is.lw.service.AuthenticationService;
+import com.is.lw.auth.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

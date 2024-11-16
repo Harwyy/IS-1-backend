@@ -1,6 +1,6 @@
-package com.is.lw.model;
+package com.is.lw.auth.model;
 
-import com.is.lw.model.enums.Role;
+import com.is.lw.auth.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,6 +38,12 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(name = "is_confirmed")
+    private boolean isConfirmed;
+
+    @Column(name = "is_enabled")
+    private boolean isEnabled;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

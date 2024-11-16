@@ -1,4 +1,4 @@
-package com.is.lw.controller;
+package com.is.lw.auth.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
