@@ -1,6 +1,8 @@
 package com.is.lw.auth.model;
 
 import com.is.lw.auth.model.enums.Role;
+import com.is.lw.model.Coordinates;
+import com.is.lw.model.Person;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,6 +49,12 @@ public class User implements UserDetails {
     @Column(name = "is_enabled")
     private boolean isEnabled;
 
+    @OneToMany(mappedBy = "createdBy")
+    private List<Coordinates> createdCoordinates;
+
+    @OneToMany(mappedBy = "updatedBy")
+    private List<Coordinates> updatedCoordinates;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
@@ -81,4 +89,5 @@ public class User implements UserDetails {
     public String getPassword(){
         return password;
     }
+
 }

@@ -48,6 +48,12 @@ public class AuthenticationService {
                 )
         );
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        if (!user.isEnabled()){
+            return AuthenticationResponse.builder()
+                    .status(Status.FAIL)
+                    .message("User with email " + request.getEmail() + " is not enabled")
+                    .build();
+        }
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .status(Status.SUCCESS)
@@ -80,6 +86,12 @@ public class AuthenticationService {
         );
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         if (user.isConfirmed()) {
+            if (!user.isEnabled()){
+                return AuthenticationResponse.builder()
+                        .status(Status.FAIL)
+                        .message("Admin with email " + request.getEmail() + " is not enabled")
+                        .build();
+            }
             var jwtToken = jwtService.generateToken(user);
             return AuthenticationResponse.builder()
                     .status(Status.SUCCESS)
@@ -88,7 +100,8 @@ public class AuthenticationService {
         }
         return AuthenticationResponse.builder()
                 .status(Status.FAIL)
-                .message("Your credentials have not been processed yet.")
+                .message("Administrator credentials with email " + request.getEmail() + " are under consideration.")
                 .build();
     }
+
 }

@@ -1,5 +1,6 @@
-package com.is.lw.auth.controller.request;
+package com.is.lw.controller.Response;
 
+import com.is.lw.model.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,10 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
-
-    private String email;
-
-    private String password;
-
+public class CoordinatesAddOrUpdateResponse {
+    Status status;
+    String message;
 }

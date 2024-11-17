@@ -12,53 +12,49 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
-@Entity
-@Table(name = "lab_work")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "lab_work")
 @Cacheable(false)
 public class LabWork {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "lab_work_id")
+    @Column(name = "lab_work_id", unique = true, nullable = false)
     private Long id;
 
     @NotNull()
     @NotBlank()
+    @Column(nullable = false, columnDefinition = "VARCHAR(256) check (TRIM(name) <> '')")
     private String name;
 
     @OneToOne
-    @JoinColumn(name = "coordinates_id", referencedColumnName = "coordinates_id")
-    @NotNull
+    @JoinColumn(name = "coordinates_id", nullable = false) // Указываем внешний ключ и обязательность
     private Coordinates coordinates;
 
-    @Column(name = "creation_date")
-    @NotNull
+    @Column(name = "creation_date", nullable = false, updatable = false)
     private LocalDateTime creationDate;
 
     @NotNull
-    @Column(length = 1840)
+    @Column(length = 1840, nullable = false)
     private String description;
 
     @ValidEnum(enumClass = Difficulty.class, message = "Invalid difficulty value.")
     private String difficulty;
 
     @ManyToOne()
-    @JoinColumn(name = "discipline_id", referencedColumnName = "discipline_id")
     private Discipline discipline;
 
-    @Column(name = "minimal_point")
-    @Min(value = 1)
     @NotNull
+    @Min(value = 1)
+    @Column(name = "minimal_point", columnDefinition = "double precision NOT NULL CHECK (minimal_point > 0)")
     private Float minimalPoint;
 
     @ManyToOne
-    @JoinColumn(name = "person_id", referencedColumnName = "person_id")
     private Person author;
 
     @PrePersist
@@ -67,4 +63,5 @@ public class LabWork {
             creationDate = LocalDateTime.now();
         }
     }
+
 }

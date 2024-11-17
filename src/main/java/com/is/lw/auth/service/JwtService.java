@@ -38,9 +38,7 @@ public class JwtService {
             UserDetails userDetails
     ) {
         String role = userDetails.getAuthorities().stream().findFirst().map(GrantedAuthority::getAuthority).orElse("USER");
-
         claims.put("role", role);
-
         return Jwts
                 .builder()
                 .setClaims(claims)

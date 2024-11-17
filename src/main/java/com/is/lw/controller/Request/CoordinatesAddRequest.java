@@ -1,4 +1,4 @@
-package com.is.lw.auth.controller.request;
+package com.is.lw.controller.Request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationRequest {
+public class CoordinatesAddRequest {
 
-    private String email;
-
-    private String password;
+    float x;
+    Long y;
+    int z;
 
 }

@@ -23,28 +23,30 @@ public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "person_id")
+    @Column(name = "person_id", unique = true, nullable = false)
     private Long id;
 
     @NotNull()
     @NotBlank()
+    @Column(nullable = false, columnDefinition = "VARCHAR(256) check (TRIM(name) <> '')")
     private String name;
 
     @ValidEnum(enumClass = Color.class, message = "Invalid color value.")
     private String color;
 
-    @Column(name = "hair_color")
-    @ValidEnum(enumClass = Color.class, message = "Invalid color value.")
     @NotNull
+    @ValidEnum(enumClass = Color.class, message = "Invalid color value.")
+    @Column(name = "hair_color", nullable = false)
     private String hairColor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "location_id", referencedColumnName = "location_id")
+    @ManyToOne
     private Location location;
 
     @Min(value = 1)
+    @Column(columnDefinition = "BIGINT CHECK (weight >= 1)")
     private Long weight;
 
     @ValidEnum(enumClass = Country.class, message = "Invalid country value.")
     private String nationality;
+
 }

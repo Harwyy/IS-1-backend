@@ -20,20 +20,22 @@ public class AdminService {
     private final UserRepository userRepository;
 
     public ApproveAdminResponse approveAdmin(ApproveAdminRequest approveAdminRequest) {
-
         var user = userRepository.findByEmail(approveAdminRequest.getEmail()).orElseThrow();
-
+        if (user.getRole() == Role.USER) {
+            return ApproveAdminResponse.builder()
+                    .status(Status.FAIL)
+                    .message("User with email "  + approveAdminRequest.getEmail () + " does not claim the rights of an administrator.")
+                    .build();
+        }
         if (user.isConfirmed()){
             return ApproveAdminResponse.builder()
                     .status(Status.FAIL)
                     .message("User with mail "  + approveAdminRequest.getEmail () + " has already been confirmed.")
                     .build();
         }
-
         user.setConfirmed(true);
         user.setEnabled(true);
         userRepository.save(user);
-
         return ApproveAdminResponse.builder()
                 .status(Status.SUCCESS)
                 .build();
