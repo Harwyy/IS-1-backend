@@ -26,11 +26,12 @@ public class DisciplineController {
             description = "Allows the user to add a new set of discipline to the system."
     )
     @PostMapping("/add")
-    public ResponseEntity<MyResponse> addCoordinates(
+    public ResponseEntity<MyResponse> addDiscipline(
             @RequestBody DisciplineAddRequest request
     ) {
         return ResponseEntity.ok(service.addDiscipline(request));
     }
+
     @Operation(
             summary = "Update existing discipline",
             description = "Allows the user to update the details of an existing set of discipline."
@@ -47,7 +48,7 @@ public class DisciplineController {
             description = "Allows the user to delete a specific set of discipline by providing the unique ID of the discipline record to be deleted."
     )
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<MyResponse> deleteCoordinates(@PathVariable Long id) {
+    public ResponseEntity<MyResponse> deleteDiscipline(@PathVariable Long id) {
         return ResponseEntity.ok(service.deleteDiscipline(id));
     }
 

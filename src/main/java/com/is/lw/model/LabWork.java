@@ -33,7 +33,7 @@ public class LabWork {
     private String name;
 
     @OneToOne
-    @JoinColumn(name = "coordinates_id", nullable = false) // Указываем внешний ключ и обязательность
+    @JoinColumn(name = "coordinates_id", nullable = false)
     private Coordinates coordinates;
 
     @Column(name = "creation_date", nullable = false, updatable = false)
