@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CoordinatesAddOrUpdateResponse {
+public class MyResponse {
     Status status;
     String message;
 }

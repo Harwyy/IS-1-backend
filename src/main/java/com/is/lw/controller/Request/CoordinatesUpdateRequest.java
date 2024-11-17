@@ -1,5 +1,6 @@
 package com.is.lw.controller.Request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +11,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CoordinatesUpdateRequest {
+
+    @JsonProperty("id")
     Long id;
+    @JsonProperty("x")
     float x;
+    @JsonProperty("y")
     Long y;
+    @JsonProperty("z")
     int z;
+
 }

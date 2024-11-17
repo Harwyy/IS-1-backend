@@ -1,5 +1,6 @@
 package com.is.lw.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.is.lw.auth.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -33,17 +34,21 @@ public class Coordinates {
 
     private int z;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "created_by")
     private User createdBy;
 
+    @JsonIgnore
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "updated_by")
     private User updatedBy;
 
+    @JsonIgnore
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 

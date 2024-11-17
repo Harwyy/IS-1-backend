@@ -49,12 +49,6 @@ public class User implements UserDetails {
     @Column(name = "is_enabled")
     private boolean isEnabled;
 
-    @OneToMany(mappedBy = "createdBy")
-    private List<Coordinates> createdCoordinates;
-
-    @OneToMany(mappedBy = "updatedBy")
-    private List<Coordinates> updatedCoordinates;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
