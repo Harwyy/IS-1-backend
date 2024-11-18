@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CoordinatesAddRequest {
 
-    @JsonProperty("id")
+    @JsonProperty("x")
     float x;
     @JsonProperty("y")
     Long y;

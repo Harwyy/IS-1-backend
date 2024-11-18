@@ -16,13 +16,13 @@ public class DisciplineUpdateRequest {
     Long id;
     @JsonProperty("name")
     String name;
-    @JsonProperty("lecturehours")
+    @JsonProperty("lectureHours")
     Long lectureHours;
-    @JsonProperty("practicehours")
+    @JsonProperty("practiceHours")
     int practiceHours;
-    @JsonProperty("selfstudyhours")
+    @JsonProperty("selfStudyHours")
     Integer selfStudyHours;
-    @JsonProperty("labscount")
+    @JsonProperty("labsCount")
     long labsCount;
 
 }

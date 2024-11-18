@@ -19,7 +19,7 @@ public class PersonUpdateRequest {
     String name;
     @JsonProperty("color")
     String color;
-    @JsonProperty("haircolor")
+    @JsonProperty("hairColor")
     String hairColor;
     @JsonProperty("location")
     Location location;

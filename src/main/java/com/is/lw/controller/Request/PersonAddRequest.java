@@ -17,7 +17,7 @@ public class PersonAddRequest {
     String name;
     @JsonProperty("color")
     String color;
-    @JsonProperty("haircolor")
+    @JsonProperty("hairColor")
     String hairColor;
     @JsonProperty("location")
     Location location;
@@ -25,6 +25,5 @@ public class PersonAddRequest {
     Long weight;
     @JsonProperty("nationality")
     String nationality;
-
 
 }
