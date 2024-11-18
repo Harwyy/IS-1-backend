@@ -51,7 +51,7 @@ public class CoordinatesService {
         if (user.getId() != coordinates.getCreatedBy().getId()) {
             return MyResponse.builder()
                     .status(Status.FAIL)
-                    .message("User with id " + coordinates.getCreatedBy().getId() + " can`t update coordinates.")
+                    .message("User with id " + user.getId() + " can`t update coordinates.")
                     .build();
         }
 
@@ -81,7 +81,7 @@ public class CoordinatesService {
         if (user.getId() != coordinates.getCreatedBy().getId()) {
             return MyResponse.builder()
                     .status(Status.FAIL)
-                    .message("User with id " + coordinates.getCreatedBy().getId() + " can`t delete coordinates with id " + id + ".")
+                    .message("User with id " + user.getId() + " can`t delete coordinates with id " + id + ".")
                     .build();
         }
 

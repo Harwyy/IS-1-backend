@@ -52,7 +52,7 @@ public class LocationService {
         if (user.getId() != location.getCreatedBy().getId()) {
             return MyResponse.builder()
                     .status(Status.FAIL)
-                    .message("User with id " + location.getCreatedBy().getId() + " can`t update location.")
+                    .message("User with id " + user.getId() + " can`t update location.")
                     .build();
         }
 
@@ -83,7 +83,7 @@ public class LocationService {
         if (user.getId() != location.getCreatedBy().getId()) {
             return MyResponse.builder()
                     .status(Status.FAIL)
-                    .message("User with id " + location.getCreatedBy().getId() + " can`t delete location with id " + id + ".")
+                    .message("User with id " + user.getId() + " can`t delete location with id " + id + ".")
                     .build();
         }
 

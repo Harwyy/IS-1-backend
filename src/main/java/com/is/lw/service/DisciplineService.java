@@ -53,7 +53,7 @@ public class DisciplineService {
         if (user.getId() != discipline.getCreatedBy().getId()) {
             return MyResponse.builder()
                     .status(Status.FAIL)
-                    .message("User with id " + discipline.getCreatedBy().getId() + " can`t update discipline.")
+                    .message("User with id " + user.getId() + " can`t update discipline.")
                     .build();
         }
 
@@ -85,7 +85,7 @@ public class DisciplineService {
         if (user.getId() != discipline.getCreatedBy().getId()) {
             return MyResponse.builder()
                     .status(Status.FAIL)
-                    .message("User with id " + discipline.getCreatedBy().getId() + " can`t delete discipline with id " + id + ".")
+                    .message("User with id " + user.getId() + " can`t delete discipline with id " + id + ".")
                     .build();
         }
 
