@@ -1,8 +1,6 @@
 package com.is.lw.auth.model;
 
 import com.is.lw.auth.model.enums.Role;
-import com.is.lw.model.Coordinates;
-import com.is.lw.model.Person;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,14 +26,8 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
-
     @Column(unique = true, nullable = false)
-    private String email;
+    private String username;
 
     @Column(unique = true, nullable = false)
     private String password;
@@ -56,7 +48,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override
