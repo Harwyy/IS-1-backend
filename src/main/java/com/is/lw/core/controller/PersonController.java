@@ -1,8 +1,5 @@
 package com.is.lw.core.controller;
 
-import com.is.lw.core.controller.Request.PersonAddRequest;
-import com.is.lw.core.controller.Request.PersonUpdateRequest;
-import com.is.lw.core.controller.Response.MyResponse;
 import com.is.lw.core.model.Person;
 import com.is.lw.core.service.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,82 +12,50 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/user/person")
-@Tag(name = "Person Controller", description = "Endpoints for managing person data, including adding, updating, deleting, and filtering discipline.")
+@RequestMapping("/api/v1/person")
+@Tag(name = "Person Controller")
 public class PersonController {
 
     private final PersonService service;
 
-    @Operation(
-            summary = "Add new person",
-            description = "Allows the user to add a new person to the system."
-    )
-    @PostMapping("/add")
-    public ResponseEntity<MyResponse> addLocation(
-            @RequestBody PersonAddRequest request
-    ) {
-        return ResponseEntity.ok(service.addPerson(request));
+    @Operation(summary = "Create new person", description = "Create a new person in the system.")
+    @PostMapping
+    public ResponseEntity<Person> createPerson(@RequestBody Person person) {
+        return service.createPerson(person);
     }
 
-    @Operation(
-            summary = "Update existing person",
-            description = "Allows the user to update the details of an existing person."
-    )
-    @PutMapping("/update")
-    public ResponseEntity<MyResponse> updateLocation(
-            @RequestBody PersonUpdateRequest request
-    ) {
-        return ResponseEntity.ok(service.updatePerson(request));
+    @Operation(summary = "Get person by ID", description = "Retrieve a person by its unique ID.")
+    @GetMapping("/{id}")
+    public ResponseEntity<Person> getPersonById(@PathVariable Long id) {
+        return service.getPersonById(id);
     }
 
-    @Operation(
-            summary = "Delete person by ID",
-            description = "Allows the user to delete a specific person by providing the unique ID of the location record to be deleted."
-    )
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<MyResponse> deleteLocation(@PathVariable Long id) {
-        return ResponseEntity.ok(service.deletePerson(id));
+    @Operation(summary = "Update person", description = "Update an existing person. Can be done only by the creator or an admin.")
+    @PutMapping()
+    public ResponseEntity<Person> updateLocation(@RequestBody Person person) {
+        return service.updatePerson(person);
     }
 
-    @Operation(
-            summary = "Filter and sort persons",
-            description = "Allows the user to filter and sort person based on various criteria such as name, color, weight, nationality, and location. Pagination and sorting options are supported."
-    )
-    @GetMapping("/filter")
-    public ResponseEntity<List<Person>> filterAndSortPersons(
-            @RequestParam(required = false) String nameEquals,
+    @Operation(summary = "Get all my people", description = "Retrieve a list of my all people.")
+    @GetMapping("/my")
+    private ResponseEntity<List<Person>> getAllMyLocations(){
+        return service.getMyPersons();
+    }
+
+    @Operation(summary = "Delete person", description = "Delete a person by its ID. Can be done only by the creator or an admin.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteLocation(@PathVariable Long id) {
+        return service.deletePerson(id);
+    }
+
+    @Operation(summary = "Get all people", description = "Retrieve a paginated list of all people.")
+    @GetMapping
+    public ResponseEntity<List<Person>> getAllLocations(
             @RequestParam(required = false) String nameContains,
-            @RequestParam(required = false) String colorEquals,
-            @RequestParam(required = false) String hairColorEquals,
-            @RequestParam(required = false) Long weightEquals,
-            @RequestParam(required = false) Long weightGreaterThan,
-            @RequestParam(required = false) Long weightLessThan,
-            @RequestParam(required = false) String nationalityEquals,
-            @RequestParam(required = false) Long locationIdEquals,
-            @RequestParam(required = false) Long idEquals,
-            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String direction,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
-    ) {
-        List<Person> filteredPersons = service.filterAndSortPersons(
-                nameEquals,
-                nameContains,
-                colorEquals,
-                hairColorEquals,
-                weightEquals,
-                weightGreaterThan,
-                weightLessThan,
-                nationalityEquals,
-                locationIdEquals,
-                idEquals,
-                sortBy,
-                direction,
-                page,
-                size
-        );
-        return ResponseEntity.ok(filteredPersons);
+            @RequestParam(defaultValue = "5") int size) {
+        return service.getAllPersons(nameContains, sortBy, direction, page, size);
     }
-
-
 }

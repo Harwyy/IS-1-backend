@@ -1,8 +1,5 @@
 package com.is.lw.core.controller;
 
-import com.is.lw.core.controller.Request.DisciplineAddRequest;
-import com.is.lw.core.controller.Request.DisciplineUpdateRequest;
-import com.is.lw.core.controller.Response.MyResponse;
 import com.is.lw.core.model.Discipline;
 import com.is.lw.core.service.DisciplineService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,93 +10,52 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/user/discipline")
-@Tag(name = "Discipline Controller", description = "Endpoints for managing discipline data, including adding, updating, deleting, and filtering discipline.")
+@RequestMapping("/api/v1/disciplines")
+@RequiredArgsConstructor
+@Tag(name = "Discipline Controller")
 public class DisciplineController {
 
     private final DisciplineService service;
 
-    @Operation(
-            summary = "Add new discipline",
-            description = "Allows the user to add a new set of discipline to the system."
-    )
-    @PostMapping("/add")
-    public ResponseEntity<MyResponse> addDiscipline(
-            @RequestBody DisciplineAddRequest request
-    ) {
-        return ResponseEntity.ok(service.addDiscipline(request));
+    @Operation(summary = "Create a new discipline", description = "Create a new discipline in the system.")
+    @PostMapping
+    public ResponseEntity<Discipline> createDiscipline(@RequestBody Discipline discipline) {
+        return service.createDiscipline(discipline);
     }
 
-    @Operation(
-            summary = "Update existing discipline",
-            description = "Allows the user to update the details of an existing set of discipline."
-    )
-    @PutMapping("/update")
-    public ResponseEntity<MyResponse> updateDiscipline(
-            @RequestBody DisciplineUpdateRequest request
-    ) {
-        return ResponseEntity.ok(service.updateDiscipline(request));
+    @Operation(summary = "Get a disciplines by ID", description = "Retrieve a disciplines by its unique ID.")
+    @GetMapping("/{id}")
+    public ResponseEntity<Discipline> getDisciplineById(@PathVariable Long id) {
+        return service.getDisciplineById(id);
     }
 
-    @Operation(
-            summary = "Delete discipline by ID",
-            description = "Allows the user to delete a specific set of discipline by providing the unique ID of the discipline record to be deleted."
-    )
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<MyResponse> deleteDiscipline(@PathVariable Long id) {
-        return ResponseEntity.ok(service.deleteDiscipline(id));
+    @Operation(summary = "Update discipline", description = "Update an existing discipline. Can be done only by the creator or an admin.")
+    @PutMapping
+    public ResponseEntity<Discipline> updateDiscipline(@RequestBody Discipline discipline) {
+        return service.updateDiscipline(discipline);
     }
 
-    @Operation(
-            summary = "Filter and sort discipline",
-            description = "Allows the user to filter and sort discipline based on various criteria such as name, lecture hours, and labs count, along with other attributes. Pagination and sorting options are supported."
-    )
-    @GetMapping("/filter")
-    public ResponseEntity<List<Discipline>> filterAndSortDisciplines(
-            @RequestParam(required = false) String nameEquals,
+    @Operation(summary = "Delete a discipline by ID", description = "Delete a discipline by its ID. Can be done only by the creator or an admin.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteDiscipline(@PathVariable Long id) {
+        return service.deleteDiscipline(id);
+    }
+
+    @Operation(summary = "Get all my disciplines", description = "Retrieve a list of my all disciplines.")
+    @GetMapping("/my")
+    public ResponseEntity<List<Discipline>> getMyDisciplines() {
+        return service.getMyDisciplines();
+    }
+
+    @Operation(summary = "Get all disciplines with optional filtering and pagination")
+    @GetMapping
+    public ResponseEntity<List<Discipline>> getAllDisciplines(
             @RequestParam(required = false) String nameContains,
-            @RequestParam(required = false) Long lectureHoursEquals,
-            @RequestParam(required = false) Long lectureHoursGreaterThan,
-            @RequestParam(required = false) Long lectureHoursLessThan,
-            @RequestParam(required = false) Integer practiceHoursEquals,
-            @RequestParam(required = false) Integer practiceHoursGreaterThan,
-            @RequestParam(required = false) Integer practiceHoursLessThan,
-            @RequestParam(required = false) Integer selfStudyHoursEquals,
-            @RequestParam(required = false) Integer selfStudyHoursGreaterThan,
-            @RequestParam(required = false) Integer selfStudyHoursLessThan,
-            @RequestParam(required = false) Long labsCountEquals,
-            @RequestParam(required = false) Long labsCountGreaterThan,
-            @RequestParam(required = false) Long labsCountLessThan,
-            @RequestParam(required = false) Long idEquals,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String direction,
-            @RequestParam(required = false) String sortBy,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
-    ) {
-        List<Discipline> filteredDisciplines = service.filterAndSortDisciplines(
-                nameEquals,
-                nameContains,
-                lectureHoursEquals,
-                lectureHoursGreaterThan,
-                lectureHoursLessThan,
-                practiceHoursEquals,
-                practiceHoursGreaterThan,
-                practiceHoursLessThan,
-                selfStudyHoursEquals,
-                selfStudyHoursGreaterThan,
-                selfStudyHoursLessThan,
-                labsCountEquals,
-                labsCountGreaterThan,
-                labsCountLessThan,
-                idEquals,
-                sortBy,
-                direction,
-                page,
-                size
-        );
-        return ResponseEntity.ok(filteredDisciplines);
+            @RequestParam(defaultValue = "10") int size) {
+        return service.getAllDisciplines(nameContains, sortBy, direction, page, size);
     }
-
 }

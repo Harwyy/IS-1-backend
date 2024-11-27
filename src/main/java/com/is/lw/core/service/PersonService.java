@@ -1,151 +1,142 @@
 package com.is.lw.core.service;
 
 import com.is.lw.auth.model.User;
-import com.is.lw.core.controller.Request.PersonAddRequest;
-import com.is.lw.core.controller.Request.PersonUpdateRequest;
-import com.is.lw.core.controller.Response.MyResponse;
+import com.is.lw.auth.model.enums.Role;
 import com.is.lw.core.model.Location;
 import com.is.lw.core.model.Person;
-import com.is.lw.core.model.enums.Status;
 import com.is.lw.core.repository.LocationRepository;
 import com.is.lw.core.repository.PersonRepository;
 import com.is.lw.core.specification.PersonSpecification;
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.EntityManager;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Sort;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@AllArgsConstructor
 public class PersonService {
 
     private final PersonRepository repository;
     private final LocationRepository locationRepository;
+    private final AuditLogService auditService;
+    private final EntityManager entityManager;
 
-    public MyResponse addPerson(PersonAddRequest request) {
-        Location location = null;
-
-        if (request.getLocation() != null) {
-            if (request.getLocation().getId() == null) {
-
-                location = locationRepository.save(
-                        Location.builder()
-                                .name(request.getLocation().getName())
-                                .x(request.getLocation().getX())
-                                .y(request.getLocation().getY())
-                                .z(request.getLocation().getZ())
-                                .build()
-                );
-            } else {
-                Long locationId = request.getLocation().getId();
-
-                location = locationRepository.findById(locationId)
-                        .orElseThrow(() -> new IllegalArgumentException("Location with id " + locationId + " not found."));
-
-                User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-                if (!user.getId().equals(location.getCreatedBy().getId())) {
-                    return MyResponse.builder()
-                            .status(Status.FAIL)
-                            .message("User with id " + user.getId() + " is not authorized to use location with id " + locationId + ".")
-                            .build();
-                }
-            }
+    @Transactional
+    public ResponseEntity<Person> createPerson(Person person) {
+        if (person == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
-        repository.save(
-                Person.builder()
-                        .name(request.getName())
-                        .color(request.getColor())
-                        .hairColor(request.getHairColor())
-                        .location(location)
-                        .nationality(request.getNationality())
-                        .weight(request.getWeight())
-                        .build()
-        );
-
-        return MyResponse.builder()
-                .status(Status.SUCCESS)
-                .build();
-    }
-
-    public MyResponse updatePerson(PersonUpdateRequest request) {
-
-        if (!repository.existsById(request.getId())) {
-            return MyResponse.builder()
-                    .status(Status.FAIL)
-                    .message("Person with id " + request.getId() + " not found.")
-                    .build();
+        Location location = locationRepository.findById(person.getLocation().getId())
+                .orElse(null);
+        if (location == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
-        Person person = repository.findById(request.getId()).get();
-        Location location = null;
-
-        if (request.getLocation() != null) {
-            Long locationId = request.getLocation().getId();
-            location = locationRepository.findById(locationId)
-                    .orElseThrow(() -> new IllegalArgumentException("Location with id " + locationId + " not found."));
-            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (!user.getId().equals(location.getCreatedBy().getId())) {
-                return MyResponse.builder()
-                        .status(Status.FAIL)
-                        .message("User with id " + user.getId() + " is not authorized to use location with id " + locationId + ".")
-                        .build();
-            }
-        }
-
-        person.setName(request.getName());
-        person.setColor(request.getColor());
-        person.setHairColor(request.getHairColor());
-        person.setNationality(request.getNationality());
-        person.setWeight(request.getWeight());
         person.setLocation(location);
 
-        repository.save(person);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        person.setCreatedBy(user);
 
-        return MyResponse.builder()
-                .status(Status.SUCCESS)
-                .build();
+        Person savedPerson = repository.save(person);
+        entityManager.flush();
+        entityManager.refresh(savedPerson);
+        auditService.logOperation("CREATE", user.getId(), "person", savedPerson.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedPerson);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Person> getPersonById(Long id) {
+        Optional<Person> person = repository.findById(id);
+        if (person.isPresent()) {
+            return ResponseEntity.ok(person.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @Transactional
-    public MyResponse deletePerson(Long id) {
-        if (!repository.existsById(id)) {
-            return MyResponse.builder()
-                    .status(Status.FAIL)
-                    .message("Person with id " + id + " not found.")
-                    .build();
+    public ResponseEntity<Person> updatePerson(Person updatedPerson) {
+        boolean existingPerson = repository.existsById(updatedPerson.getId());
+        if (!existingPerson) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
-        Person person = repository.findById(id).orElseThrow();
+        Person person = repository.findById(updatedPerson.getId()).get();
+
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        if (!user.getId().equals(person.getCreatedBy().getId())) {
-            return MyResponse.builder()
-                    .status(Status.FAIL)
-                    .message("User with id " + user.getId() + " is not authorized to delete person with id " + id + ".")
-                    .build();
+        if ((user.getRole().equals(Role.USER) && !person.getCreatedBy().equals(user)) ||
+                (user.getRole().equals(Role.ADMIN) && !person.getUpdateable())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
+        Location location = locationRepository.findById(updatedPerson.getLocation().getId())
+                .orElse(null);
+        if (location == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        person.setName(updatedPerson.getName());
+        person.setColor(updatedPerson.getColor());
+        person.setHairColor(updatedPerson.getHairColor());
+        person.setLocation(location);
+        person.setWeight(updatedPerson.getWeight());
+        person.setNationality(updatedPerson.getNationality());
+        if (user.getRole().equals(Role.USER)) {
+            person.setUpdateable(updatedPerson.getUpdateable());
+        }
+
+        repository.save(person);
+        auditService.logOperation("UPDATE", user.getId(), "person", person.getId());
+        return ResponseEntity.ok(person);
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Person>> getMyPersons() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(repository.findAllByCreatedBy(user));
+    }
+
+    @Transactional
+    public ResponseEntity<String> deletePerson(Long id) {
+        boolean existingPerson = repository.existsById(id);
+        if (!existingPerson) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Person not found.");
+        }
+
+        Person person = repository.findById(id).get();
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (!person.getCreatedBy().equals(user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You are not authorized to delete this person.");
         }
 
         Long locationId = person.getLocation() != null ? person.getLocation().getId() : null;
 
         repository.delete(person);
+        auditService.logOperation("DELETE", user.getId(), "person", person.getId());
 
         if (locationId != null) {
             unlinkPersonsFromLocation(locationId);
             locationRepository.deleteById(locationId);
         }
 
-        return MyResponse.builder()
-                .status(Status.SUCCESS)
-                .message("Person with id " + id + " was deleted.")
-                .build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body("Person and associated location deleted successfully.");
     }
 
     @Transactional
@@ -153,39 +144,30 @@ public class PersonService {
         repository.updatePersonsLocationToNull(locationId);
     }
 
-    public List<Person> filterAndSortPersons(
-            String nameEquals,
-            String nameContains,
-            String colorEquals,
-            String hairColorEquals,
-            Long weightEquals,
-            Long weightGreaterThan,
-            Long weightLessThan,
-            String nationalityEquals,
-            Long locationIdEquals,
-            Long idEquals,
-            String sortBy,
-            String direction,
-            int page,
-            int size) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Person>> getAllPersons(String nameContains, String sortBy, String direction, int page, int size) {
+        if (page < 0 || size > 100) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.emptyList());
+        }
 
-        Specification<Person> specification = Specification
-                .where(PersonSpecification.filterByNameEquals(nameEquals))
-                .and(PersonSpecification.filterByNameContains(nameContains))
-                .and(PersonSpecification.filterByColorEquals(colorEquals))
-                .and(PersonSpecification.filterByHairColorEquals(hairColorEquals))
-                .and(PersonSpecification.filterByWeightEquals(weightEquals))
-                .and(PersonSpecification.filterByWeightGreaterThan(weightGreaterThan))
-                .and(PersonSpecification.filterByWeightLessThan(weightLessThan))
-                .and(PersonSpecification.filterByNationalityEquals(nationalityEquals))
-                .and(PersonSpecification.filterByLocationIdEquals(locationIdEquals))
-                .and(PersonSpecification.filterByIdEquals(idEquals));
+        if (direction == null || (!direction.equalsIgnoreCase("asc") && !direction.equalsIgnoreCase("desc"))) {
+            direction = "asc";
+        }
 
+        if (sortBy == null || sortBy.isEmpty()) {
+            sortBy = "id";
+        } else if (!isSortableField(sortBy)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.emptyList());
+        }
+
+        Specification<Person> specification = Specification.where(PersonSpecification.filterByNameContains(nameContains));
         Sort sort = getSort(sortBy, direction);
-
         Pageable pageable = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok(repository.findAll(specification, pageable));
+    }
 
-        return repository.findAll(specification, pageable);
+    private boolean isSortableField(String sortBy) {
+        return List.of("id", "name", "color", "hairColor", "weight", "nationality", "updateable").contains(sortBy);
     }
 
     private Sort getSort(String sortBy, String direction) {

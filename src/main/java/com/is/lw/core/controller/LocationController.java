@@ -1,8 +1,5 @@
 package com.is.lw.core.controller;
 
-import com.is.lw.core.controller.Request.LocationAddRequest;
-import com.is.lw.core.controller.Request.LocationUpdateRequest;
-import com.is.lw.core.controller.Response.MyResponse;
 import com.is.lw.core.model.Location;
 import com.is.lw.core.service.LocationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,83 +12,50 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/user/location")
-@Tag(name = "Location Controller", description = "Endpoints for managing location data, including adding, updating, deleting, and filtering discipline.")
+@RequestMapping("/api/v1/locations")
+@Tag(name = "Location Controller")
 public class LocationController {
 
     private final LocationService service;
 
-    @Operation(
-            summary = "Add new location",
-            description = "Allows the user to add a new set of location to the system."
-    )
-    @PostMapping("/add")
-    public ResponseEntity<MyResponse> addLocation(
-            @RequestBody LocationAddRequest request
-    ) {
-        return ResponseEntity.ok(service.addLocation(request));
+    @Operation(summary = "Create new location", description = "Create a new location in the system.")
+    @PostMapping
+    public ResponseEntity<Location> createLocation(@RequestBody Location location) {
+        return service.createLocation(location);
     }
 
-    @Operation(
-            summary = "Update existing location",
-            description = "Allows the user to update the details of an existing set of location."
-    )
-    @PutMapping("/update")
-    public ResponseEntity<MyResponse> updateLocation(
-            @RequestBody LocationUpdateRequest request
-    ) {
-        return ResponseEntity.ok(service.updateLocation(request));
+    @Operation(summary = "Get location by ID", description = "Retrieve a location by its unique ID.")
+    @GetMapping("/{id}")
+    public ResponseEntity<Location> getLocationById(@PathVariable Long id) {
+        return service.getLocationById(id);
     }
 
-    @Operation(
-            summary = "Delete location by ID",
-            description = "Allows the user to delete a specific set of location by providing the unique ID of the location record to be deleted."
-    )
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<MyResponse> deleteLocation(@PathVariable Long id) {
-        return ResponseEntity.ok(service.deleteLocation(id));
-    }
-
-    @Operation(
-            summary = "Filter and sort location",
-            description = "Allows the user to filter and sort location based on various criteria such as name, x, y, z. Pagination and sorting options are supported."
-    )
-    @GetMapping("/filter")
-    public ResponseEntity<List<Location>> filterAndSortLocations(
-            @RequestParam(required = false) String nameEquals,
+    @Operation(summary = "Get all locations", description = "Retrieve a paginated list of all locations.")
+    @GetMapping
+    public ResponseEntity<List<Location>> getAllLocations(
             @RequestParam(required = false) String nameContains,
-            @RequestParam(required = false) Long xEquals,
-            @RequestParam(required = false) Long xGreaterThan,
-            @RequestParam(required = false) Long xLessThan,
-            @RequestParam(required = false) Double yEquals,
-            @RequestParam(required = false) Double yGreaterThan,
-            @RequestParam(required = false) Double yLessThan,
-            @RequestParam(required = false) Integer zEquals,
-            @RequestParam(required = false) Integer zGreaterThan,
-            @RequestParam(required = false) Integer zLessThan,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String direction,
-            @RequestParam(required = false) String sortBy,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
-    ) {
-        List<Location> filteredLocations = service.filterAndSortLocations(
-                nameEquals,
-                nameContains,
-                xEquals,
-                xGreaterThan,
-                xLessThan,
-                yEquals,
-                yGreaterThan,
-                yLessThan,
-                zEquals,
-                zGreaterThan,
-                zLessThan,
-                sortBy,
-                direction,
-                page,
-                size
-        );
-        return ResponseEntity.ok(filteredLocations);
+            @RequestParam(defaultValue = "5") int size) {
+        return service.getAllLocations(nameContains, sortBy, direction, page, size);
     }
 
+    @Operation(summary = "Get all my locations", description = "Retrieve a list of my all locations.")
+    @GetMapping("/my")
+    private ResponseEntity<List<Location>> getAllMyLocations(){
+        return service.getMyLocations();
+    }
+
+    @Operation(summary = "Update location", description = "Update an existing location. Can be done only by the creator or an admin.")
+    @PutMapping()
+    public ResponseEntity<Location> updateLocation(@RequestBody Location location) {
+        return service.updateLocation(location);
+    }
+
+    @Operation(summary = "Delete location", description = "Delete a location by its ID. Can be done only by the creator or an admin.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteLocation(@PathVariable Long id) {
+        return service.deleteLocation(id);
+    }
 }

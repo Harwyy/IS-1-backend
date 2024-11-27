@@ -1,8 +1,5 @@
 package com.is.lw.core.controller;
 
-import com.is.lw.core.controller.Request.LabWorkAddRequest;
-import com.is.lw.core.controller.Request.LabWorkUpdateRequest;
-import com.is.lw.core.controller.Response.MyResponse;
 import com.is.lw.core.model.LabWork;
 import com.is.lw.core.service.LabWorkService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,93 +8,56 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/user/labwork")
-@Tag(name = "LabWork Controller", description = "Endpoints for managing labwork data, including adding, updating, deleting, and filtering labwork.")
+@RequestMapping("/api/v1/labworks")
+@Tag(name = "Laboratory Work Controller")
 public class LabWorkController {
 
     private final LabWorkService service;
 
-    @Operation(
-            summary = "Add new labwork",
-            description = "Allows the user to add a new labwork to the system."
-    )
-    @PostMapping("/add")
-    public ResponseEntity<MyResponse> addLocation(
-            @RequestBody LabWorkAddRequest request
-    ) {
-        return ResponseEntity.ok(service.addLabWork(request));
+    @Operation(summary = "Create new laboratory work", description = "Create a new laboratory work in the system.")
+    @PostMapping
+    public ResponseEntity<LabWork> createPerson(@RequestBody LabWork labWork) {
+        return service.createLabWork(labWork);
     }
 
-    @Operation(
-            summary = "Update existing labwork",
-            description = "Allows the user to update the details of an existing labwork."
-    )
-    @PutMapping("/update")
-    public ResponseEntity<MyResponse> updateLocation(
-            @RequestBody LabWorkUpdateRequest request
-    ) {
-        return ResponseEntity.ok(service.updateLabWork(request));
+    @Operation(summary = "Get laboratory work by ID", description = "Retrieve a laboratory work by its unique ID.")
+    @GetMapping("/{id}")
+    public ResponseEntity<LabWork> getLabWorkByID(@PathVariable Long id) {
+        return service.getLabWorkById(id);
     }
 
-    @Operation(
-            summary = "Delete labwork by ID"
-    )
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<MyResponse> deleteLocation(@PathVariable Long id) {
-        return ResponseEntity.ok(service.deleteLabWork(id));
+    @Operation(summary = "Update laboratory work", description = "Update an existing laboratory work. Can be done only by the creator or an admin.")
+    @PutMapping()
+    public ResponseEntity<LabWork> updateLabWork(@RequestBody LabWork labWork) {
+        return service.updateLabWork(labWork);
     }
 
-    @Operation(
-            summary = "Filter and sort lab works",
-            description = "Allows the user to filter and sort lab works based on various criteria such as name, coordinates, difficulty, discipline, minimal point, and author. Pagination and sorting options are supported."
-    )
-    @GetMapping("/filter")
-    public ResponseEntity<List<LabWork>> filterAndSortLabWorks(
-            @RequestParam(required = false) String nameEquals,
+    @Operation(summary = "Get all my laboratory works", description = "Retrieve a list of my all laboratory works.")
+    @GetMapping("/my")
+    private ResponseEntity<List<LabWork>> getAllMyLabWorks(){
+        return service.getMyLabWorks();
+    }
+
+    @Operation(summary = "Delete laboratory work", description = "Delete a laboratory work by its ID. Can be done only by the creator or an admin.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteLocation(@PathVariable Long id) {
+        return service.deleteLabWork(id);
+    }
+
+    @Operation(summary = "Get all laboratory works", description = "Retrieve a paginated list of all laboratory works.")
+    @GetMapping
+    public ResponseEntity<List<LabWork>> getAllLocations(
             @RequestParam(required = false) String nameContains,
-            @RequestParam(required = false) Long coordinatesIdEquals,
             @RequestParam(required = false) String descriptionContains,
-            @RequestParam(required = false) String difficultyEquals,
-            @RequestParam(required = false) Long disciplineIdEquals,
-            @RequestParam(required = false) Float minimalPointEquals,
-            @RequestParam(required = false) Float minimalPointGreaterThan,
-            @RequestParam(required = false) Float minimalPointLessThan,
-            @RequestParam(required = false) Long authorIdEquals,
-            @RequestParam(required = false) Long createdByIdEquals,
-            @RequestParam(required = false) Long updatedByIdEquals,
-            @RequestParam(required = false) LocalDateTime createdAtAfter,
-            @RequestParam(required = false) LocalDateTime createdAtBefore,
-            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String direction,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
-    ) {
-        List<LabWork> filteredLabWorks = service.filterAndSortLabWorks(
-                nameEquals,
-                nameContains,
-                coordinatesIdEquals,
-                descriptionContains,
-                difficultyEquals,
-                disciplineIdEquals,
-                minimalPointEquals,
-                minimalPointGreaterThan,
-                minimalPointLessThan,
-                authorIdEquals,
-                createdByIdEquals,
-                updatedByIdEquals,
-                createdAtAfter,
-                createdAtBefore,
-                sortBy,
-                direction,
-                page,
-                size
-        );
-        return ResponseEntity.ok(filteredLabWorks);
+            @RequestParam(defaultValue = "5") int size) {
+        return service.getAllLabWorks(nameContains, descriptionContains, sortBy, direction, page, size);
     }
 
 }

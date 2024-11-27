@@ -3,6 +3,7 @@ package com.is.lw.auth.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,7 +28,26 @@ public class SecurityFilterConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**","/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/v1/user/**").hasAuthority("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/locations").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/locations").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/locations/*").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/coordinates").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/coordinates").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/coordinates/*").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/disciplines").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/disciplines").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/disciplines/*").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/person").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/person").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/person/*").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/labworks").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/labworks").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/labworks/*").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers("/api/v1/locations/**").hasAuthority("USER")
+                        .requestMatchers("/api/v1/coordinates/**").hasAuthority("USER")
+                        .requestMatchers("/api/v1/disciplines/**").hasAuthority("USER")
+                        .requestMatchers("/api/v1/person/**").hasAuthority("USER")
+                        .requestMatchers("/api/v1/labworks/**").hasAuthority("USER")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

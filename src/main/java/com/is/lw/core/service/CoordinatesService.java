@@ -1,130 +1,144 @@
 package com.is.lw.core.service;
 
 import com.is.lw.auth.model.User;
-import com.is.lw.core.controller.Request.CoordinatesAddRequest;
-import com.is.lw.core.controller.Request.CoordinatesUpdateRequest;
-import com.is.lw.core.controller.Response.MyResponse;
+import com.is.lw.auth.model.enums.Role;
 import com.is.lw.core.model.Coordinates;
-import com.is.lw.core.model.enums.Status;
 import com.is.lw.core.repository.CoordinatesRepository;
-import com.is.lw.core.specification.CoordinatesSpecification;
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.EntityManager;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@AllArgsConstructor
 public class CoordinatesService {
 
     private final CoordinatesRepository repository;
+    private final AuditLogService auditService;
+    private final EntityManager entityManager;
 
-    public MyResponse addCoordinates(CoordinatesAddRequest request) {
+    @Transactional
+    public ResponseEntity<Coordinates> createCoordinates(Coordinates coordinates) {
+        if (coordinates == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
 
-        repository.save(Coordinates.builder()
-                .x(request.getX())
-                .y(request.getY())
-                .z(request.getZ())
-                .build());
-        return MyResponse.builder()
-                .status(Status.SUCCESS)
-                .build();
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        coordinates.setCreatedBy(user);
+        Coordinates savedCoordinates = repository.save(coordinates);
+        entityManager.flush();
+        entityManager.refresh(savedCoordinates);
+        auditService.logOperation("CREATE", user.getId(), "coordinates", savedCoordinates.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCoordinates);
     }
 
-    public MyResponse updateCoordinates(CoordinatesUpdateRequest request) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<Coordinates> getCoordinatesById(Long id) {
+        Optional<Coordinates> coordinates = repository.findById(id);
+        if (coordinates.isPresent()) {
+            return ResponseEntity.ok(coordinates.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        }
+    }
 
-        if (!repository.existsById(request.getId())) {
-            return MyResponse.builder()
-                    .status(Status.FAIL)
-                    .message("Coordinates with id " + request.getId() + " not found.")
-                    .build();
+    @Transactional
+    public ResponseEntity<Coordinates> updateCoordinates(Coordinates updatedCoordinates) {
+        boolean existingCoordinates = repository.existsById(updatedCoordinates.getId());
+        if (!existingCoordinates) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null);
         }
 
-        Coordinates coordinates = repository.findById(request.getId()).orElseThrow();
+        Coordinates coordinates = repository.findById(updatedCoordinates.getId()).get();
+
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user.getId() != coordinates.getCreatedBy().getId()) {
-            return MyResponse.builder()
-                    .status(Status.FAIL)
-                    .message("User with id " + user.getId() + " can`t update coordinates.")
-                    .build();
+
+        if ((user.getRole().equals(Role.USER) && !coordinates.getCreatedBy().equals(user)) ||
+                (user.getRole().equals(Role.ADMIN) && !coordinates.getUpdateable())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(null);
         }
 
-        coordinates.setX(request.getX());
-        coordinates.setY(request.getY());
-        coordinates.setZ(request.getZ());
+        coordinates.setX(updatedCoordinates.getX());
+        coordinates.setY(updatedCoordinates.getY());
+        if (user.getRole().equals(Role.USER)) {
+            coordinates.setUpdateable(updatedCoordinates.getUpdateable());
+        }
+
         repository.save(coordinates);
-
-        return MyResponse.builder()
-                .status(Status.SUCCESS)
-                .message("Coordinates with id " + request.getId() + " was updated.")
-                .build();
-
+        auditService.logOperation("UPDATE", user.getId(), "coordinates", coordinates.getId());
+        return ResponseEntity.ok(coordinates);
     }
 
-    public MyResponse deleteCoordinates(Long id) {
-
-        if (!repository.existsById(id)) {
-            return MyResponse.builder()
-                    .status(Status.FAIL)
-                    .message("Coordinates with id " + id + " not found.")
-                    .build();
+    @Transactional
+    public ResponseEntity<String> deleteCoordinates(Long id) {
+        boolean existingCoordinates = repository.existsById(id);
+        if (!existingCoordinates) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Coordinates not found.");
         }
 
-        Coordinates coordinates = repository.findById(id).orElseThrow();
+        Coordinates coordinates = repository.findById(id).get();
+
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user.getId() != coordinates.getCreatedBy().getId()) {
-            return MyResponse.builder()
-                    .status(Status.FAIL)
-                    .message("User with id " + user.getId() + " can`t delete coordinates with id " + id + ".")
-                    .build();
+
+        if (!coordinates.getCreatedBy().equals(user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You are not authorized to delete these coordinates.");
         }
 
-        repository.deleteById(id);
-        return MyResponse.builder()
-                .status(Status.SUCCESS)
-                .message("Coordinates with id " + id + " was deleted.")
-                .build();
-
+        repository.delete(coordinates);
+        auditService.logOperation("DELETE", user.getId(), "coordinates", coordinates.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body("Coordinates deleted successfully.");
+    }
+    
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Coordinates>> getMyCoordinates() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(repository.findAllByCreatedBy(user));
     }
 
-    public List<Coordinates> filterAndSortCoordinates(Float xEquals,
-                                                      Float xGreaterThan,
-                                                      Float xLessThan,
-                                                      Long yEquals,
-                                                      Long yGreaterThan,
-                                                      Long yLessThan,
-                                                      Integer zEquals,
-                                                      Integer zGreaterThan,
-                                                      Integer zLessThan,
-                                                      Long idEquals,
-                                                      String sortBy,
-                                                      String direction,
-                                                      int page,
-                                                      int size)
-    {
-        Specification<Coordinates> specification = Specification
-                .where(CoordinatesSpecification.filterByXEquals(xEquals))
-                .and(CoordinatesSpecification.filterByXGreaterThan(xGreaterThan))
-                .and(CoordinatesSpecification.filterByXLessThan(xLessThan))
-                .and(CoordinatesSpecification.filterByYEquals(yEquals))
-                .and(CoordinatesSpecification.filterByYGreaterThan(yGreaterThan))
-                .and(CoordinatesSpecification.filterByYLessThan(yLessThan))
-                .and(CoordinatesSpecification.filterByZEquals(zEquals))
-                .and(CoordinatesSpecification.filterByZGreaterThan(zGreaterThan))
-                .and(CoordinatesSpecification.filterByZLessThan(zLessThan))
-                .and(CoordinatesSpecification.filterByIdEquals(idEquals));
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<Coordinates>> getAllCoordinates(String sortBy, String direction, int page, int size) {
+        if (page < 0 || size > 100) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.emptyList());
+        }
+
+        if (direction == null || (!direction.equalsIgnoreCase("asc") && !direction.equalsIgnoreCase("desc"))) {
+            direction = "asc";
+        }
+
+        System.out.println(sortBy);
+        if (sortBy == null || sortBy.isEmpty()) {
+            sortBy = "id";
+        } else if (!isSortableField(sortBy)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.emptyList());
+        }
 
         Sort sort = getSort(sortBy, direction);
-
         Pageable pageable = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok(repository.findAll(pageable).getContent());
+    }
 
-        return repository.findAll(specification, pageable);
+    private boolean isSortableField(String sortBy) {
+        return List.of("id", "X", "Y", "updateable").contains(sortBy);
     }
 
     private Sort getSort(String sortBy, String direction) {
@@ -134,5 +148,4 @@ public class CoordinatesService {
         Sort.Direction sortDirection = direction.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         return Sort.by(sortDirection, sortBy);
     }
-
 }

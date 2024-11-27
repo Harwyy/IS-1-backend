@@ -1,5 +1,6 @@
 package com.is.lw.core.repository;
 
+import com.is.lw.auth.model.User;
 import com.is.lw.core.model.LabWork;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,4 +28,6 @@ public interface LabWorkRepository extends JpaRepository<LabWork, Long> {
     void updateLabWorksDisciplineToNull(@Param("disciplineId") Long disciplineId);
 
     List<LabWork> findAll(Specification<LabWork> specification, Pageable pageable);
+
+    List<LabWork> findAllByCreatedBy(User user);
 }
