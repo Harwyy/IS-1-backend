@@ -30,4 +30,51 @@ public interface LabWorkRepository extends JpaRepository<LabWork, Long> {
     List<LabWork> findAll(Specification<LabWork> specification, Pageable pageable);
 
     List<LabWork> findAllByCreatedBy(User user);
+
+    @Query("SELECT COUNT(l) FROM LabWork l WHERE l.minimalPoint = :minimalPoint")
+    long countByMinimalPoint(@Param("minimalPoint") Integer minimalPoint);
+
+//    CREATE OR REPLACE PROCEDURE delete_laboratory_work_by_minimal_point(target_point NUMERIC, user_id NUMERIC)
+//    LANGUAGE plpgsql
+//    AS $$
+//    BEGIN
+//        DELETE FROM lab_work
+//        WHERE lab_work_id = (
+//                SELECT lab_work_id
+//                FROM lab_work
+//                WHERE minimal_point = target_point
+//                AND created_by = user_id
+//                LIMIT 1
+//        );
+//    END;
+//    $$;
+    @Modifying
+    @Query(value = "CALL delete_laboratory_work_by_minimal_point(?1, ?2)", nativeQuery = true)
+    void deleteOneByMinimalPoint(Integer minimalPoint, Long userId);
+
+//    CREATE OR REPLACE PROCEDURE add_lab_work_to_discipline(lw_id NUMERIC, disc_id NUMERIC, user_id NUMERIC)
+//    LANGUAGE plpgsql
+//    AS $$
+//    BEGIN
+//    UPDATE lab_work
+//    SET discipline_id = disc_id
+//    WHERE lab_work_id = lw_id AND created_by = user_id;
+//    END;
+//    $$;
+    @Modifying
+    @Query(value = "CALL add_lab_work_to_discipline(?1, ?2, ?3)", nativeQuery = true)
+    void addLabWorkToDiscipline(Long labWorkId, Long disciplineId, Long userId);
+
+//    CREATE OR REPLACE PROCEDURE delete_lab_work_to_discipline(lw_id NUMERIC, disc_id NUMERIC, user_id NUMERIC)
+//    LANGUAGE plpgsql
+//    AS $$
+//    BEGIN
+//    UPDATE lab_work
+//    SET discipline_id = null
+//    WHERE lab_work_id = lw_id AND created_by = user_id;
+//    END;
+//    $$;
+    @Modifying
+    @Query(value = "CALL delete_lab_work_to_discipline(?1, ?2)", nativeQuery = true)
+    void deleteLabWorkToDiscipline(Long labWorkId, Long userId);
 }

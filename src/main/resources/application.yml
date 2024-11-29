@@ -6,6 +6,12 @@ spring:
   jpa:
     open-in-view: true
     show-sql: true
+    defer-datasource-initialization: true
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
 jwt:
   secret-key: 812af4d7c69835cdd20d0dc236ad7e9f00aa31126f0ab650d990b9b9b2d1b0ba
   expiration-time: 86400000

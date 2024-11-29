@@ -2,6 +2,7 @@ package com.is.lw.core.service;
 
 import com.is.lw.auth.model.User;
 import com.is.lw.auth.model.enums.Role;
+import com.is.lw.core.model.Discipline;
 import com.is.lw.core.model.Location;
 import com.is.lw.core.model.Person;
 import com.is.lw.core.repository.LocationRepository;
@@ -38,13 +39,13 @@ public class PersonService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
-        Location location = locationRepository.findById(person.getLocation().getId())
-                .orElse(null);
-        if (location == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (person.getLocation() != null) {
+            Location location = locationRepository.findById(person.getLocation().getId())
+                    .orElse(null);
+            if (location != null) {
+                person.setLocation(location);
+            }
         }
-
-        person.setLocation(location);
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         person.setCreatedBy(user);
@@ -82,16 +83,21 @@ public class PersonService {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
-        Location location = locationRepository.findById(updatedPerson.getLocation().getId())
-                .orElse(null);
-        if (location == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (updatedPerson.getLocation() != null) {
+            Location location = locationRepository.findById(updatedPerson.getLocation().getId())
+                    .orElse(null);
+            if (location != null) {
+                person.setLocation(location);
+            } else {
+                person.setLocation(null);
+            }
+        } else {
+            person.setLocation(null);
         }
 
         person.setName(updatedPerson.getName());
         person.setColor(updatedPerson.getColor());
         person.setHairColor(updatedPerson.getHairColor());
-        person.setLocation(location);
         person.setWeight(updatedPerson.getWeight());
         person.setNationality(updatedPerson.getNationality());
         if (user.getRole().equals(Role.USER)) {

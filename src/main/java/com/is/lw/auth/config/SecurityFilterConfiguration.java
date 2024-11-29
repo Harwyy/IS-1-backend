@@ -48,6 +48,7 @@ public class SecurityFilterConfiguration {
                         .requestMatchers("/api/v1/disciplines/**").hasAuthority("USER")
                         .requestMatchers("/api/v1/person/**").hasAuthority("USER")
                         .requestMatchers("/api/v1/labworks/**").hasAuthority("USER")
+                        .requestMatchers("/api/v1/commands/**").hasAuthority("USER")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

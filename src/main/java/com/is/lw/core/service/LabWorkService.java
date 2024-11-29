@@ -38,12 +38,13 @@ public class LabWorkService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
-        Discipline discipline = disciplineRepository.findById(labWork.getDiscipline().getId())
-                        .orElse(null);
-        if (discipline == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (labWork.getDiscipline() != null) {
+            Discipline discipline = disciplineRepository.findById(labWork.getDiscipline().getId())
+                    .orElse(null);
+            if (discipline != null) {
+                labWork.setDiscipline(discipline);
+            }
         }
-        labWork.setDiscipline(discipline);
 
         Coordinates coordinates = coordinatesRepository.findById(labWork.getCoordinates().getId())
                 .orElse(null);
@@ -52,12 +53,13 @@ public class LabWorkService {
         }
         labWork.setCoordinates(coordinates);
 
-        Person person = personRepository.findById(labWork.getAuthor().getId())
-                .orElse(null);
-        if (person == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (labWork.getAuthor() != null){
+            Person person = personRepository.findById(labWork.getAuthor().getId())
+                    .orElse(null);
+            if (person != null) {
+                labWork.setAuthor(person);
+            }
         }
-        labWork.setAuthor(person);
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         labWork.setCreatedBy(user);
@@ -95,10 +97,16 @@ public class LabWorkService {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
-        Discipline discipline = disciplineRepository.findById(labWork.getDiscipline().getId())
-                .orElse(null);
-        if (discipline == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (updatedLabWork.getDiscipline() != null) {
+            Discipline discipline = disciplineRepository.findById(updatedLabWork.getDiscipline().getId())
+                    .orElse(null);
+            if (discipline != null) {
+                labWork.setDiscipline(discipline);
+            } else {
+                labWork.setDiscipline(null);
+            }
+        } else {
+            labWork.setDiscipline(null);
         }
 
         Coordinates coordinates = coordinatesRepository.findById(labWork.getCoordinates().getId())
@@ -107,25 +115,29 @@ public class LabWorkService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
-        Person person = personRepository.findById(labWork.getAuthor().getId())
-                .orElse(null);
-        if (person == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        if (updatedLabWork.getAuthor() != null){
+            Person person = personRepository.findById(updatedLabWork.getAuthor().getId())
+                    .orElse(null);
+            if (person != null) {
+                labWork.setAuthor(person);
+            } else {
+                labWork.setAuthor(null);
+            }
+        } else {
+            labWork.setAuthor(null);
         }
 
         labWork.setName(updatedLabWork.getName());
         labWork.setCoordinates(coordinates);
         labWork.setDescription(updatedLabWork.getDescription());
-        labWork.setDiscipline(discipline);
         labWork.setMinimalPoint(updatedLabWork.getMinimalPoint());
-        labWork.setAuthor(person);
         labWork.setDifficulty(updatedLabWork.getDifficulty());
         if (user.getRole().equals(Role.USER)) {
-            person.setUpdateable(updatedLabWork.getUpdateable());
+            labWork.setUpdateable(updatedLabWork.getUpdateable());
         }
 
         repository.save(labWork);
-        auditService.logOperation("UPDATE", user.getId(), "lab_work", person.getId());
+        auditService.logOperation("UPDATE", user.getId(), "lab_work", labWork.getId());
         return ResponseEntity.ok(labWork);
     }
 
