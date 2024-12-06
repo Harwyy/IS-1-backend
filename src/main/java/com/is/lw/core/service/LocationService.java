@@ -4,6 +4,7 @@ import com.is.lw.auth.model.User;
 import com.is.lw.auth.model.enums.Role;
 import com.is.lw.core.model.Location;
 import com.is.lw.core.repository.LocationRepository;
+import com.is.lw.core.repository.PersonRepository;
 import com.is.lw.core.specification.LocationSpecification;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.Optional;
 public class LocationService {
 
     private final LocationRepository repository;
+    private final PersonRepository personRepository;
     private final AuditLogService auditService;
     private final EntityManager entityManager;
 
@@ -104,7 +106,7 @@ public class LocationService {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("You are not authorized to delete this location.");
         }
-
+        personRepository.updatePersonsLocationToNull(id);
         repository.delete(location);
         auditService.logOperation("DELETE", user.getId(), "location", location.getId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT)

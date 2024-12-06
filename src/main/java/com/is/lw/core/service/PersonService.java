@@ -5,6 +5,7 @@ import com.is.lw.auth.model.enums.Role;
 import com.is.lw.core.model.Discipline;
 import com.is.lw.core.model.Location;
 import com.is.lw.core.model.Person;
+import com.is.lw.core.repository.LabWorkRepository;
 import com.is.lw.core.repository.LocationRepository;
 import com.is.lw.core.repository.PersonRepository;
 import com.is.lw.core.specification.PersonSpecification;
@@ -30,6 +31,7 @@ public class PersonService {
 
     private final PersonRepository repository;
     private final LocationRepository locationRepository;
+    private final LabWorkRepository labWorkRepository;
     private final AuditLogService auditService;
     private final EntityManager entityManager;
 
@@ -133,6 +135,7 @@ public class PersonService {
 
         Long locationId = person.getLocation() != null ? person.getLocation().getId() : null;
 
+        labWorkRepository.updateLabWorksPersonToNull(id);
         repository.delete(person);
         auditService.logOperation("DELETE", user.getId(), "person", person.getId());
 
@@ -173,7 +176,7 @@ public class PersonService {
     }
 
     private boolean isSortableField(String sortBy) {
-        return List.of("id", "name", "color", "hairColor", "weight", "nationality", "updateable").contains(sortBy);
+        return List.of("id", "name", "color", "hairColor", "weight", "nationality", "location", "updateable").contains(sortBy);
     }
 
     private Sort getSort(String sortBy, String direction) {

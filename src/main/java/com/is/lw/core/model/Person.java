@@ -8,7 +8,6 @@ import com.is.lw.core.model.enums.Country;
 import com.is.lw.core.validator.annotation.ValidEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -56,8 +55,7 @@ public class Person {
     @Schema(description = "Location associated with the person.", required = false)
     private Location location;
 
-    @Min(value = 1)
-    @Column(columnDefinition = "BIGINT CHECK (weight >= 1)")
+    @Column(columnDefinition = "BIGINT CHECK (weight >= 0)")
     @JsonProperty("weight")
     @Schema(description = "Weight of the person in kilograms.", example = "75", required = false)
     private Long weight;

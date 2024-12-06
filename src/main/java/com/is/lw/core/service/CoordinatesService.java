@@ -4,6 +4,7 @@ import com.is.lw.auth.model.User;
 import com.is.lw.auth.model.enums.Role;
 import com.is.lw.core.model.Coordinates;
 import com.is.lw.core.repository.CoordinatesRepository;
+import com.is.lw.core.repository.LabWorkRepository;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +25,7 @@ import java.util.Optional;
 public class CoordinatesService {
 
     private final CoordinatesRepository repository;
+    private final LabWorkRepository labWorkRepository;
     private final AuditLogService auditService;
     private final EntityManager entityManager;
 
@@ -101,6 +103,7 @@ public class CoordinatesService {
                     .body("You are not authorized to delete these coordinates.");
         }
 
+        labWorkRepository.updateLabWorksCoordinatesToNull(id);
         repository.delete(coordinates);
         auditService.logOperation("DELETE", user.getId(), "coordinates", coordinates.getId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT)

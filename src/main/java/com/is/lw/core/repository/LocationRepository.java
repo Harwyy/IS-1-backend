@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface LocationRepository extends JpaRepository<Location, Long> {
+
     List<Location> findAll(Specification<Location> specification, Pageable pageable);
 
     List<Location> findAllByCreatedBy(User user);

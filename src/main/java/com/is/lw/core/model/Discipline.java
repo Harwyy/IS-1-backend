@@ -42,27 +42,25 @@ public class Discipline {
 
     @NotNull
     @Min(value = 1)
-    @Column(name = "lecture_hours", columnDefinition = "BIGINT NOT NULL CHECK (lecture_hours >= 1)")
+    @Column(name = "lecture_hours", columnDefinition = "BIGINT NOT NULL CHECK (lecture_hours >= 0)")
     @JsonProperty("lectureHours")
     @Schema(description = "Number of lecture hours for the discipline.", example = "30", required = true)
     private Long lectureHours;
 
-    @Min(value = 1)
-    @Column(name = "practice_hours", columnDefinition = "INT CHECK (practice_hours >= 1)")
+    @Column(name = "practice_hours", columnDefinition = "INT CHECK (practice_hours >= 0)")
     @JsonProperty("practiceHours")
     @Schema(description = "Number of practice hours for the discipline.", example = "15")
     private int practiceHours;
 
     @NotNull
     @Min(value = 1)
-    @Column(name = "self_study_hours", columnDefinition = "INT NOT NULL CHECK (self_study_hours >= 1)")
+    @Column(name = "self_study_hours", columnDefinition = "INT NOT NULL CHECK (self_study_hours >= 0)")
     @JsonProperty("selfStudyHours")
     @Schema(description = "Number of self-study hours for the discipline.", example = "20", required = true)
     private Integer selfStudyHours;
 
 
-    @Min(value = 1)
-    @Column(name = "labs_count", columnDefinition = "BIGINT CHECK (labs_count >= 1)")
+    @Column(name = "labs_count")
     @JsonProperty("labsCount")
     @Schema(description = "Number of laboratory sessions for the discipline.", example = "5")
     private long labsCount;

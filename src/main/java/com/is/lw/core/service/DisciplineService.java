@@ -4,6 +4,7 @@ import com.is.lw.auth.model.User;
 import com.is.lw.auth.model.enums.Role;
 import com.is.lw.core.model.Discipline;
 import com.is.lw.core.repository.DisciplineRepository;
+import com.is.lw.core.repository.LabWorkRepository;
 import com.is.lw.core.specification.DisciplineSpecification;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.Optional;
 public class DisciplineService {
 
     private final DisciplineRepository repository;
+    private final LabWorkRepository labWorkRepository;
     private final AuditLogService auditService;
     private final EntityManager entityManager;
 
@@ -102,6 +104,7 @@ public class DisciplineService {
                     .body("You are not authorized to delete this discipline.");
         }
 
+        labWorkRepository.updateLabWorksDisciplineToNull(id);
         repository.delete(discipline);
         auditService.logOperation("DELETE", user.getId(), "discipline", discipline.getId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Discipline deleted successfully.");

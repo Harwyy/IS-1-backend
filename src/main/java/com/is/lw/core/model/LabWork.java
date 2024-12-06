@@ -69,8 +69,7 @@ public class LabWork {
     private Discipline discipline;
 
     @NotNull
-    @Min(value = 1)
-    @Column(name = "minimal_point", columnDefinition = "double precision NOT NULL CHECK (minimal_point > 0)")
+    @Column(name = "minimal_point")
     @JsonProperty("minimalPoint")
     @Schema(description = "Minimal point required to pass the lab work.", example = "50.0", required = true)
     private Float minimalPoint;

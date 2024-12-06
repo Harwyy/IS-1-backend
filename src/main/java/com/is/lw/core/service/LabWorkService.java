@@ -228,7 +228,7 @@ public class LabWorkService {
     }
 
     private boolean isSortableField(String sortBy) {
-        return List.of("id", "name", "description", "difficulty", "minimalPoint", "updateable").contains(sortBy);
+        return List.of("id", "name", "description", "difficulty", "minimalPoint", "discipline", "createdAt", "author", "coordinates", "updateable").contains(sortBy);
     }
 
     private Sort getSort(String sortBy, String direction) {
