@@ -55,6 +55,7 @@ public class SecurityFilterConfiguration {
                         .requestMatchers("/api/v1/person/**").hasAuthority("USER")
                         .requestMatchers("/api/v1/labworks/**").hasAuthority("USER")
                         .requestMatchers("/api/v1/commands/**").hasAuthority("USER")
+                        .requestMatchers("/api/v1/file-log/**").hasAnyAuthority("ADMIN", "USER")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -70,7 +71,7 @@ public class SecurityFilterConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3001"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

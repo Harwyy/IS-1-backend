@@ -31,6 +31,8 @@ public interface LabWorkRepository extends JpaRepository<LabWork, Long> {
 
     List<LabWork> findAllByCreatedBy(User user);
 
+    boolean existsByName(String name);
+
     @Query("SELECT COUNT(l) FROM LabWork l WHERE l.minimalPoint = :minimalPoint")
     long countByMinimalPoint(@Param("minimalPoint") Integer minimalPoint);
 

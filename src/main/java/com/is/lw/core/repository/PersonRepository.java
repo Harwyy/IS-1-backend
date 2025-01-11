@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Long> {
@@ -23,4 +24,7 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     List<Person> findAll(Specification<Person> specification, Pageable pageable);
 
     List<Person> findAllByCreatedBy(User user);
+
+    @Query(value = "SELECT p.person_id FROM person p WHERE p.name = ?1 AND p.hair_color = ?2 ORDER BY p.person_id DESC LIMIT 1", nativeQuery = true)
+    Optional<Long> findLast(String name, String hairColor);
 }

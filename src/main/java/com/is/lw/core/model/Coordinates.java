@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+@ToString
 @Data
 @Builder
 @AllArgsConstructor

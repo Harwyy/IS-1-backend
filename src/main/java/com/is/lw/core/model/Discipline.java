@@ -14,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 
-
+@ToString
 @Getter
 @Setter
 @NoArgsConstructor

@@ -38,6 +38,11 @@ public class LabWorkService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
+        boolean existsByName = repository.existsByName(labWork.getName());
+        if (existsByName) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        }
+
         if (labWork.getDiscipline() != null) {
             Discipline discipline = disciplineRepository.findById(labWork.getDiscipline().getId())
                     .orElse(null);
@@ -95,6 +100,11 @@ public class LabWorkService {
         if ((user.getRole().equals(Role.USER) && !labWork.getCreatedBy().equals(user)) ||
                 (user.getRole().equals(Role.ADMIN) && !labWork.getUpdateable())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
+        boolean existsByName = repository.existsByName(labWork.getName());
+        if (existsByName) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
 
         if (updatedLabWork.getDiscipline() != null) {

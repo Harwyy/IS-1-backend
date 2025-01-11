@@ -14,6 +14,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@ToString
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,7 +25,6 @@ import java.time.LocalDateTime;
 @Cacheable(false)
 @Schema(description = "Entity representing a laboratory work.")
 public class LabWork {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "lab_work_id", unique = true, nullable = false)
